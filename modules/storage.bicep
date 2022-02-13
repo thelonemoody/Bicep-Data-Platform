@@ -1,6 +1,7 @@
 param env string
 param project string
 param prefix string
+param location string
 
 param containerNames array = [
   'raw'
@@ -11,7 +12,7 @@ var name = '${prefix}${project}${env}'
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: name
-  location: '${resourceGroup().location}'
+  location: location 
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS' 
@@ -26,8 +27,6 @@ resource blob 'Microsoft.Storage/storageAccounts/blobServices/containers@2019-06
   name: '${stg.name}/default/${name}'
 }]
 
-
-output storagekey string =  listKeys(resourceId('Microsoft.Storage/storageAccounts', name), '2019-06-01').keys[0].value
 
 
 

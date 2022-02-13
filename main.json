@@ -1,0 +1,439 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.613.9944",
+      "templateHash": "3641044251208903960"
+    }
+  },
+  "parameters": {
+    "project": {
+      "type": "string"
+    },
+    "env": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "deployStorage": {
+      "type": "bool"
+    },
+    "deployDataFactory": {
+      "type": "bool"
+    },
+    "deploySql": {
+      "type": "bool"
+    },
+    "deployDatabricks": {
+      "type": "bool"
+    },
+    "deployKeyVault": {
+      "type": "bool"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "condition": "[parameters('deployStorage')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "storageDeploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "project": {
+            "value": "[parameters('project')]"
+          },
+          "env": {
+            "value": "[parameters('env')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "prefix": {
+            "value": "sa"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "18290496363980143168"
+            }
+          },
+          "parameters": {
+            "env": {
+              "type": "string"
+            },
+            "project": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "containerNames": {
+              "type": "array",
+              "defaultValue": [
+                "raw",
+                "curated"
+              ]
+            }
+          },
+          "functions": [],
+          "variables": {
+            "name": "[format('{0}{1}{2}', parameters('prefix'), parameters('project'), parameters('env'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2019-06-01",
+              "name": "[variables('name')]",
+              "location": "[parameters('location')]",
+              "kind": "StorageV2",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "properties": {
+                "accessTier": "Hot",
+                "isHnsEnabled": true
+              }
+            },
+            {
+              "copy": {
+                "name": "blob",
+                "count": "[length(parameters('containerNames'))]"
+              },
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/default/{1}', variables('name'), parameters('containerNames')[copyIndex()])]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('name'))]"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "condition": "[parameters('deployDataFactory')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "factoryDeploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "project": {
+            "value": "[parameters('project')]"
+          },
+          "env": {
+            "value": "[parameters('env')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "prefix": {
+            "value": "df"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "12774642490484569202"
+            }
+          },
+          "parameters": {
+            "project": {
+              "type": "string"
+            },
+            "env": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "name": "[format('{0}-{1}-{2}', parameters('prefix'), parameters('project'), parameters('env'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.DataFactory/factories",
+              "apiVersion": "2018-06-01",
+              "name": "[variables('name')]",
+              "location": "[parameters('location')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "condition": "[parameters('deploySql')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "sqlDeploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "project": {
+            "value": "[parameters('project')]"
+          },
+          "env": {
+            "value": "[parameters('env')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "dbprefix": {
+            "value": "sqldb"
+          },
+          "serverprefix": {
+            "value": "sqlsrv"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "14465226591839220555"
+            }
+          },
+          "parameters": {
+            "project": {
+              "type": "string"
+            },
+            "env": {
+              "type": "string"
+            },
+            "serverprefix": {
+              "type": "string"
+            },
+            "dbprefix": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "servername": "[format('{0}-{1}-{2}', parameters('serverprefix'), parameters('project'), parameters('env'))]",
+            "dbname": "[format('{0}{1}', parameters('dbprefix'), parameters('env'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Sql/servers",
+              "apiVersion": "2019-06-01-preview",
+              "name": "[variables('servername')]",
+              "location": "[parameters('location')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "administratorLogin": "sqllogin",
+                "administratorLoginPassword": "Something123*"
+              }
+            },
+            {
+              "type": "Microsoft.Sql/servers/databases",
+              "apiVersion": "2020-08-01-preview",
+              "name": "[format('{0}/{1}', variables('servername'), variables('dbname'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Basic"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', variables('servername'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Sql/servers/firewallRules",
+              "apiVersion": "2015-05-01-preview",
+              "name": "[format('{0}/AllowAllWindowsAzureIps', variables('servername'))]",
+              "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', variables('servername'))]"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "condition": "[parameters('deployDatabricks')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "databricksDeploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "project": {
+            "value": "[parameters('project')]"
+          },
+          "env": {
+            "value": "[parameters('env')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "prefix": {
+            "value": "dbr"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "15590504384965411040"
+            }
+          },
+          "parameters": {
+            "project": {
+              "type": "string"
+            },
+            "env": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "sub": "[subscription().subscriptionId]",
+            "name": "[format('{0}-{1}-{2}', parameters('prefix'), parameters('project'), parameters('env'))]",
+            "mrg": "[format('rg-{0}-{1}-{2}', parameters('prefix'), parameters('project'), parameters('env'))]",
+            "managedResourceGroupId": "[format('/subscriptions/{0}/resourceGroups/{1}', variables('sub'), variables('mrg'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Databricks/workspaces",
+              "apiVersion": "2018-04-01",
+              "name": "[variables('name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "managedResourceGroupId": "[variables('managedResourceGroupId')]"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "condition": "[parameters('deployKeyVault')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "keyvaultDeploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "project": {
+            "value": "[parameters('project')]"
+          },
+          "env": {
+            "value": "[parameters('env')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "prefix": {
+            "value": "kv"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "13761273520336651098"
+            }
+          },
+          "parameters": {
+            "project": {
+              "type": "string"
+            },
+            "env": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "name": "[format('{0}-{1}-{2}', parameters('prefix'), parameters('project'), parameters('env'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2019-09-01",
+              "name": "[variables('name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "tenantId": "[subscription().tenantId]",
+                "sku": {
+                  "family": "A",
+                  "name": "standard"
+                },
+                "enabledForTemplateDeployment": true,
+                "enableRbacAuthorization": true
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,11 +1,19 @@
-location = 'westeurope'
-resourceGroup = 'rg-gobicepdata-dev'
-project = 'gobicepdata'
-env = 'dev'
 
-az group create --location location --name resourceGroup
+param($location, $project, $envrionment, $deployStorage, $deployDataFactory, $deploySql, $deployDatabricks,$deployKeyVault )
 
-az deployment group create -f ./main.json -g resourceGroup --parameters project=project env=env
+$resourceGroup = 'rg-'+ $project + '-' + $envrionment
+
+az group create --location $location --name $resourceGroup 
+
+az deployment group create -f ./main.json -g $resourceGroup --parameters project=$project `
+                                                                        env=$envrionment `
+                                                                        location=$location `
+                                                                        deployStorage=$deployStorage `
+                                                                        deployDataFactory=$deployDataFactory `
+                                                                        deploySql=$deploySql `
+                                                                        deployDatabricks=$deployDatabricks `
+                                                                        deployKeyVault=$deployKeyVault `
+
 
 
 

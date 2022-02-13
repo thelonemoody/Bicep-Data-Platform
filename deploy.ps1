@@ -1,9 +1,11 @@
+location = 'westeurope'
+resourceGroup = 'rg-gobicepdata-dev'
+project = 'gobicepdata'
+env = 'dev'
 
+az group create --location location --name resourceGroup
 
-az group create --location 'westeurope' --name 'rg-gobicepdata-dev'
-              
-
-az deployment group create -f ./main.json -g 'rg-gobicepdata-dev' --parameters project='gobicepdata' env='dev'
+az deployment group create -f ./main.json -g resourceGroup --parameters project=project env=env
 
 
 

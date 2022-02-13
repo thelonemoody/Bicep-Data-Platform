@@ -2,34 +2,30 @@ param project string
 param env string 
 param serverprefix string
 param dbprefix string
-
-@secure()
-param sqlserverpassword string = newGuid() 
+param location string
 
 
 var servername = '${serverprefix}-${project}-${env}'
 var dbname = '${dbprefix}${env}'
 
 resource sqlserver 'Microsoft.Sql/servers@2019-06-01-preview' = {
-  location: '${resourceGroup().location}'
+  location: location
   name: servername
   identity: {
     type: 'SystemAssigned'
   }
   properties: {
     administratorLogin: 'sqllogin'
-    administratorLoginPassword: sqlserverpassword
+    administratorLoginPassword: 'Something123*'
   }
 }
 
 resource sqldatabase 'Microsoft.Sql/servers/databases@2020-08-01-preview' = {
   name:  '${sqlserver.name}/${dbname}'
-  location: '${resourceGroup().location}'
+  location: location
   sku: {
     name: 'Basic'
   }
-  dependsOn: [  sqlserver 
-  ]
 }
 
 resource azureFirewalls 'Microsoft.Sql/servers/firewallRules@2015-05-01-preview' = {
@@ -41,5 +37,4 @@ resource azureFirewalls 'Microsoft.Sql/servers/firewallRules@2015-05-01-preview'
 }
 
 
-output sqlserverpassword string  = sqlserverpassword
 

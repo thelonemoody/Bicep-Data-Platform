@@ -1,6 +1,7 @@
 param project string 
 param env string 
 param location string 
+param testparameter string
 
 param deployStorage bool
 param deployDataFactory bool
